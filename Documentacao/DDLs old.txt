@@ -1,0 +1,289 @@
+
+CREATE TABLE cg_ref_codes
+(
+num integer NOT NULL,	
+  rv_low_value character varying(300) NOT NULL,
+  rv_high_value character varying(300),
+  rv_abreviation character varying(300),
+  rv_domain character varying(300) NOT NULL,
+  rv_meaning character varying(300),
+  CONSTRAINT pk_cg_ref_codes PRIMARY KEY (num)
+);
+
+
+CREATE TABLE public.titulo_extrato
+(
+  num integer NOT NULL,
+  fk_titulo_num integer NOT NULL,
+  vl numeric(18,2) NOT NULL,
+  vl_saldo_ant numeric(18,2) NOT NULL,
+  vl_saldo_atu numeric(18,2) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  obs character varying(200),
+  CONSTRAINT pk_titulo_extrato PRIMARY KEY (fk_titulo_num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE titulo_agrupamento
+(
+  num integer NOT NULL,
+  fk_titulo_num integer not null,
+  cd_tipo integer NOT NULL, 
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  CONSTRAINT pk_titulo_agrupamento PRIMARY KEY (fk_titulo_num) ,
+  CONSTRAINT fk_titulo FOREIGN KEY (fk_titulo_num)
+      REFERENCES public.titulo (num) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION  
+);
+
+CREATE TABLE contrato_pessoa
+(
+  fk_contrato_num integer NOT NULL,
+  fk_pessoa_num integer NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  CONSTRAINT pk_contrato_pessoa PRIMARY KEY (fk_contrato_num, fk_pessoa_num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE contrato
+(
+  num integer NOT NULL,
+  descr character varying(100) NOT NULL,
+  fk_contrato_tipo_num integer not null,
+  dt_base date NOT NULL,
+  vl_base numeric(18,2) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  obs character varying(200),
+  CONSTRAINT pk_contrato PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE pessoa
+(
+  num integer NOT NULL,
+  nome character varying(100) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  obs character varying(200),
+  CONSTRAINT pk_pessoa PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE public.tipo_pagamento
+(
+  num integer NOT NULL,
+  descr character varying(200) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  obs character varying(2000),
+  CONSTRAINT pk_tipo_pagamento PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE public.grupo_titulo
+(
+  num integer NOT NULL,
+  descr character varying(200) NOT NULL,
+  cd_tipo character varying(1) NOT NULL, 
+  cd_contabiliza character varying(1) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  obs character varying(2000),
+  CONSTRAINT pk_grupo_titulo PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE public.titulo
+(
+  num integer NOT NULL,
+  fk_conta_num integer NOT NULL,
+  fk_grupo_num integer NOT NULL,
+  fk_tipo_pagamento_num integer NOT NULL,
+  descr character varying(200) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  dt_vcto date NOT NULL,
+  dt_pgto date,
+  vl numeric(18,2) NOT NULL,
+  parcela integer NOT NULL,
+  parcela_total integer NOT NULL,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  fk_contpes_contrato_num integer,
+  fk_contpes_pessoa_num integer,
+  CONSTRAINT pk_titulo PRIMARY KEY (num),
+  CONSTRAINT fk_titulo_ocontrato_pessoa FOREIGN KEY (fk_contpes_contrato_num, fk_contpes_pessoa_num)
+      REFERENCES public.contrato_pessoa (fk_contrato_num, fk_pessoa_num) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE public.conta
+(
+  num integer NOT NULL,
+  fk_conta_tipo_num integer not null,
+  cd_sit integer NOT NULL,
+  descr character varying(100) NOT NULL,
+  dt_alt timestamp without time zone,
+  dt_cad timestamp without time zone NOT NULL,
+  obs character varying(2000),
+  us_cad character varying(30) NOT NULL,
+  us_alt character varying(30),
+  vl_saldo numeric(19,2) NOT NULL,
+  CONSTRAINT conta_pk PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE public.grupo
+(
+  num integer NOT NULL DEFAULT nextval('grupo_id_seq'::regclass),
+  cd_tipo character varying(255),
+  descricao character varying(100) NOT NULL,
+  CONSTRAINT grupo_pkey PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE public.login
+(
+  id integer NOT NULL DEFAULT nextval('login_id_seq'::regclass),
+  email character varying(100) NOT NULL,
+  senha character varying(30) NOT NULL,
+  CONSTRAINT login_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE public.projeto
+(
+  num integer NOT NULL,
+  descr character varying(2000) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  vl_orcado numeric(18,2) NOT NULL,
+  dt_prev_ini date NOT NULL,
+  dt_prev_fim date,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_projeto PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+  CREATE SEQUENCE public.conta_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999 -- mudar
+  START 1
+  CACHE 1;
+
+  CREATE SEQUENCE public.grupo_titulo_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999 -- mudar
+  START 1
+  CACHE 1;
+
+  CREATE SEQUENCE public.tipo_pagamento_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999 -- mudar
+  START 1
+  CACHE 1;
+
+  CREATE SEQUENCE public.titulo_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;
+
+  CREATE SEQUENCE public.titulo_extrato_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;
+  
+  
+  CREATE SEQUENCE public.pessoa_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;  
+  
+
+  CREATE SEQUENCE public.contrato_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;  
+
+  CREATE SEQUENCE public.cg_ref_codes_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;  
+
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+-*-*-* EXEMPLO SEQUENCE: -*-*-*-*
+
+  CREATE SEQUENCE public.grupo_titulo_seq --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 99 -- mudar
+  START 1
+  CACHE 1;
+  
+

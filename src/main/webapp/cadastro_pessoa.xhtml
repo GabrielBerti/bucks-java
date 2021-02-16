@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+        <h:form id="frm">
+
+            <br></br>
+            <u><h1>Cadastro de Pessoa</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{pessoaMB.limpaNum}"
+                                     onclick="PF('DialogPessoa').show()" />
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogPessoa').show()" 
+                                     disabled="#{!pessoaMB.pessoaSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" />
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{pessoaMB.excluir}" 
+                                     disabled="#{!pessoaMB.pessoaSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=meuDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir a Pessoa ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="meuDataTable"
+                         rowStyleClass="#{(pessoaMB.id eq 1) ? 'color: red': ''
+                                                               ? 'color: orange' : '' }"
+                         value="#{pessoaMB.listaPessoas}"
+                         selection="#{pessoaMB.selectedPessoa}"
+                         var="pessoa" 
+                         paginator="true" rows="10" paginatorPosition="bottom" emptyMessage="Nenhuma informação a ser exibida" selectionMode="single"
+                         rowKey="#{pessoa.id}" >
+
+                <p:ajax event="rowSelect" listener="#{pessoaMB.linhaSelecionada}" update="@([id$=toolbar])" />
+
+                <p:column headerText="Num" width="80" sortBy="#{pessoa.id}" filterBy="#{pessoa.id}" filterMatchMode="contains">
+                    <h:outputText value="#{pessoa.id}" />
+                </p:column>
+
+                <p:column headerText="Nome"  sortBy="#{pessoa.nome}" filterBy="#{pessoa.nome}" filterMatchMode="contains">
+                    <h:outputText value="#{pessoa.nome}" />
+                </p:column>
+                
+                <p:column headerText="Observação">
+                    <h:outputText value="#{pessao.obs}" />
+                </p:column>
+
+                <p:column headerText="Ações" width="150">
+                    
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogPessoa').show()" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" >
+                    </p:commandButton>
+                    
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{pessoaMB.excluir}" 
+                                     process="@this"
+                                     update="@([id$=meuDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir a Pessoa ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+                    
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Nova Pessoa" id="Dialog" widgetVar="DialogPessoa"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="Dialog"/>
+                <h:panelGrid columns="2">
+
+                    <p:outputLabel value="Nome: " for="nome" />
+                    <p:inputText id="nome" size="80" maxlength="100" value="#{pessoaMB.nome}"  />
+
+                    <p:outputLabel value="Observação: " for="obs" />
+                    <p:inputText id="obs" size="80" maxlength="2000" value="#{pessoaMB.obs}"   />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{pessoaMB.inserir}" update="meuDataTable" />
+                </h:panelGrid>
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

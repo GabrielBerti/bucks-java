@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+        <h:form id="frm">
+            <p:messages id="login" globalOnly="false">
+<!--                <p:autoUpdate/>-->
+            </p:messages>
+            
+            <br></br>
+            <u><h1>Cadastro de Obra</h1></u>
+            <br></br>
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     onclick="PF('obraDialogWidgetVar').show()" />
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <!--                    <p:commandButton title="Editar" icon="fa fa-edit" />-->
+                    <p:commandButton title="Editar" icon="fa fa-edit" oncomplete="PF('obraDialogWidgetVar').show()" 
+                                     update="@([id$=obraDialog])" disabled="#{!projetoMB.projetoSeleciona}" process="@this"/>
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" actionListener="#{projetoMB.excluirProjeto}" disabled="#{!projetoMB.projetoSeleciona}" process="@this"
+                                     update="@([id$=obrasDataTable])" >
+                       
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o projeto ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="obrasDataTable" value="#{projetoMB.listaProjetos}"
+                         var="projeto" emptyMessage="Nenhuma informação a ser exibida"
+                         paginator="true" rows="10" paginatorPosition="bottom"
+                         selectionMode="single" selection="#{projetoMB.selectedProj}" rowKey="#{projeto.num}" >
+
+                <!--                <p:ajax event="rowSelect" update="@this" />
+                                <p:ajax event="rowUnselect" update="@this" />-->
+                <p:ajax event="rowSelect" listener="#{projetoMB.linhaSelecionada}" update="@([id$=toolbar])" />
+<!--                <p:ajax event="rowUnselect" listener="#{projetoMB.linhaSelecionada}" update="@([id$=toolbar])" />-->
+
+                <p:column headerText="Descrição" sortBy="#{projeto.descr}" filterBy="#{projeto.descr}" filterMatchMode="contains">
+                    <h:outputText value="#{projeto.descr}" />
+                </p:column>
+
+                <p:column headerText="Data Cadastro">
+                    <h:outputText value="#{projeto.dt_cad}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Valor Orçado">
+                    <h:outputText value="#{projeto.vl_orcado}" >
+                        <f:convertNumber pattern="###,###,###,##0.00"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Data Prev. Início">
+                    <h:outputText value="#{projeto.dt_prev_ini}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Data Prev. Fim">
+                    <h:outputText value="#{projeto.dt_prev_fim}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Observação">
+                    <h:outputText value="#{projeto.obs}" />
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Nova Obra" id="obraDialog" widgetVar="obraDialogWidgetVar"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="obraDialog"/>
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="Descrição: " for="descr" />
+                    <p:inputText id="descr" size="80" maxlength="2000" value="#{projetoMB.descr}"  />
+
+                    <p:outputLabel value="Valor orçado: " for="vl_orcado" />
+                    <p:inputNumber id="vl_orcado" value="#{projetoMB.vl_orcado}" decimalPlaces="2" size="80" symbol="R$"/>
+
+                    <p:outputLabel value="Data Prev. início: " for="dt_prev_ini" />
+                    <p:calendar id="dt_prev_ini" pattern="dd/MM/yyyy" size="30" value="#{projetoMB.dt_prev_ini}" />
+
+                    <p:outputLabel value="Data Prev. fim " for="dt_prev_fim" />
+                    <p:calendar id="dt_prev_fim" pattern="dd/MM/yyyy" size="30" value="#{projetoMB.dt_prev_fim}"/>
+
+                    <p:outputLabel value="Observação: " for="obs" />
+                    <p:inputText id="obs" size="80" maxlength="2000" value="#{projetoMB.obs}"   />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{projetoMB.inserirProjeto}" update="obrasDataTable, obraDialog" />
+                </h:panelGrid>
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

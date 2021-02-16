@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+        <h:form id="frm">
+
+            <br></br>
+            <u><h1>Cadastro de Orçamento</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{orcamentoMB.actionNova}"
+                                     update="panelorcamento"
+                                     onclick="PF('DialogOrcamento').show()" />
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogOrcamento').show()" 
+                                     disabled="#{!orcamentoMB.orcamentoSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" />
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{orcamentoMB.excluirOrcamento}" 
+                                     disabled="#{!orcamentoMB.orcamentoSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=orcamentosDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o orçamento ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+                    
+                    <p:commandButton title="Copiar"  oncomplete="PF('DialogOrcamento').show()" 
+                                     disabled="#{!orcamentoMB.orcamentoSeleciona}" 
+                                     action="#{orcamentoMB.copiarOrcamento}"
+                                     process="@this"
+                                     update="@([id$=Dialog])" />                    
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <h:outputLabel for="ajaxSpinnerAno" value="Ano:" />
+                    <p:spinner value="#{orcamentoMB.filtroAno}" id="ajaxSpinnerAno" size="1" min="2007" max="2099" maxlength="4" style="margin-right: 10px">
+                        <p:ajax update="orcamentosDataTable" process="@this" listener="#{orcamentoMB.todosOrcamentos}" />
+                    </p:spinner>
+
+                    <h:outputLabel for="ajaxSpinnerMes" value="Mês:" />
+                    <p:spinner value="#{orcamentoMB.filtroMes}" id="ajaxSpinnerMes" size="1" min="0" max="12" maxlength="2" style="margin-right: 10px">
+                        <p:ajax update="orcamentosDataTable" process="@this" listener="#{orcamentoMB.todosOrcamentos}"  />
+                    </p:spinner>
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+                        
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="orcamentosDataTable"
+                         styleClass="fonte12"
+                         rowStyleClass="#{orcamento.grupoTitulo.cdTipo eq 'P' ? 'Color: pagar': 'Color: receber' }"
+                         value="#{orcamentoMB.listaOrcamentos}"
+                         selection="#{orcamentoMB.selectedOrcamento}"
+                         var="orcamento" 
+                         paginator="true" 
+                         rows="50" 
+                         paginatorPosition="bottom" 
+                         emptyMessage="Nenhuma informação a ser exibida" 
+                         selectionMode="single"
+                         scrollable="True"
+                         scrollWidth="100%"
+                         resizableColumns="True"
+                         rowKey="#{orcamento.id}" >
+
+                <p:ajax event="rowSelect" listener="#{orcamentoMB.linhaSelecionada}" update="@([id$=toolbar])" />
+
+                <p:column headerText="Grupo" width="200"
+                          sortBy="#{orcamento.grupoTitulo.num}" 
+                          filterBy="#{orcamento.grupoTitulo.descr}" 
+                          filterMatchMode="contains">
+                    <h:outputText value="#{orcamento.grupoTitulo.descr}" />
+                </p:column>
+                
+                <p:column headerText="Ano" width="40" sortBy="#{orcamento.ano}" filterBy="#{orcamento.ano}" filterMatchMode="contains">
+                    <h:outputText value="#{orcamento.ano}" />
+                </p:column>
+                
+                <p:column headerText="Mês" width="20" sortBy="#{orcamento.mes}" filterBy="#{orcamento.mes}" filterMatchMode="contains">
+                    <h:outputText value="#{orcamento.mes}" />
+                </p:column>
+
+                <p:column headerText="Valor" sortBy="#{orcamento.vl}" filterBy="#{orcamento.vl}" filterMatchMode="contains">
+                    <h:outputText value="#{orcamento.vl}" >
+                        <f:convertNumber pattern="###,###,###,##0.00"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Ações" width="150">
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogOrcamento').show()" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" >
+                    </p:commandButton>
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{orcamentoMB.excluirOrcamento}" 
+                                     process="@this"
+                                     update="@([id$=orcamentosDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o orçamento ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Novo Orçamento" id="Dialog" widgetVar="DialogOrcamento"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="Dialog"/>
+                <h:panelGrid columns="2" id="panelorcamento">
+
+                    <p:outputLabel value="Id: " />
+                    <p:outputLabel value="#{orcamentoMB.id}" id="id" />
+                    
+                    <p:outputLabel value="Ano" for="ano" />
+                    <p:inputNumber id="ano" value="#{orcamentoMB.ano}" decimalPlaces="0" />
+                    
+                    <p:outputLabel value="Mês" for="mes" />
+                    <p:inputNumber id="mes" value="#{orcamentoMB.mes}" decimalPlaces="0" />
+                    
+                    <p:outputLabel value="Grupo: " />
+                    <p:selectOneMenu id="GruposTitulos" filter="true" 
+                                     value="#{orcamentoMB.grupoTitulo}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" 
+                                     converter="grupoTituloConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{orcamentoMB.listaGruposTitulos}" 
+                                       var="GruposTitulos" 
+                                       itemLabel="#{GruposTitulos.descr}" 
+                                       itemValue="#{GruposTitulos}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Valor" for="vl" />
+                    <p:inputNumber id="vl" value="#{orcamentoMB.vl}" decimalPlaces="0" size="80" symbol="R$" />
+
+                    <p:outputLabel value="Observação: " for="obs" />
+                    <p:inputText id="obs" size="80" maxlength="2000" value="#{orcamentoMB.obs}"   />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{orcamentoMB.inserirOrcamento}" update="orcamentosDataTable" />
+                </h:panelGrid>
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

@@ -1,0 +1,8 @@
+-- ATIVIDADES BUCKS:
+
+	-- EM TODAS OS DIALOGS DAS TELAS COLOCAR REQUIRED PARA CAMPOS OBRIGATÓRIOS
+	-- conta nao deleta
+	-- erro na tela de contrato_pessoa ao clicar em um contrato
+	-- erro ao inserir o titulo_agrupamento
+
+	-- retirar 'testando' da URL

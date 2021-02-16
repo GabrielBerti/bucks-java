@@ -1,0 +1,109 @@
+
+
+
+CREATE TABLE PROJETO 
+(
+  num integer NOT NULL,
+  descr character varying(2000) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  vl_orcado numeric(18,2) NOT NULL,
+  dt_prev_ini date NOT NULL,
+  dt_prev_fim date,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_projeto PRIMARY KEY (num)
+)
+;
+
+CREATE TABLE PROJETO_FASE
+(
+  projeto_num integer NOT NULL,
+  num integer NOT NULL,
+  descr character varying(2000) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  vl_orcado numeric(18,2) NOT NULL,
+  dt_prev_ini date NOT NULL,
+  dt_prev_fim date,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_projeto_fase PRIMARY KEY (projeto_num, num)
+)
+;
+
+
+CREATE TABLE PROJETO_FASE_ITEM
+(
+  projeto_num integer NOT NULL,
+  fase_num integer NOT NULL,  
+  num integer NOT NULL,
+  descr character varying(2000) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  vl_orcado numeric(18,2) NOT NULL,
+  dt_prev_ini date NOT NULL,
+  dt_prev_fim date,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_projeto_fase_item PRIMARY KEY (projeto_num, fase_num, num)
+)
+;
+
+
+
+-- Busck Tabelas FASE 1:
+
+create table projeto(
+	num         integer CONSTRAINT pk_projeto PRIMARY KEY,
+	descr       varchar(2000) NOT NULL,
+	dt_cad      date not null,
+	us_cad      varchar(30) not null,
+	vl_orcado   numeric(18, 2) not null,
+	dt_prev_ini date not null,
+	dt_prev_fim date,
+	dt_alt      date,
+	us_alt      varchar(30),
+	obs         varchar(2000)
+);
+--drop table projeto;
+
+insert into projeto values(1, 'PROJETO TESTE', '04/09/2019', USER, 100000, '01/12/2019', null,null,NULL,'TESTE OBS');
+
+select * from projeto;
+--
+
+projeto_fase(
+	projeto_num pk
+	num         integer CONSTRAINT pk_projeto_fase PRIMARY KEY,
+	descr       varchar(2000) NOT NULL,
+	dt_cad      date not null,
+	us_cad      varchar(30) not null,
+	vl_orcado   numeric(18, 2) not null,
+	dt_prev_ini date not null,
+	dt_prev_fim date,
+	dt_alt      date,
+	us_alt      varchar(30),
+	obs         varchar(2000)
+);
+select * from projeto_fase;
+--
+
+projeto_fase_item(
+	projeto_num pk 
+	fase_num    pk
+	num         integer CONSTRAINT pk_projeto_fase_item PRIMARY KEY,
+	descr       varchar(2000) NOT NULL,
+	dt_cad      date not null,
+	us_cad      varchar(30) not null,
+	vl_orcado   numeric(18, 2) not null,
+	dt_prev_ini date not null,
+	dt_prev_fim date,
+	dt_alt      date,
+	us_alt      varchar(30),
+	obs         varchar(2000)
+);
+select * from projeto_fase_item;

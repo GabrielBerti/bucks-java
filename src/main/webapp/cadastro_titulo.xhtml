@@ -1,0 +1,374 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+        <h:form id="frm">
+
+            <br></br>
+            <u><h1>Cadastro de Título</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{tituloMB.actionNova}"
+                                     update="paneltitulo"
+                                     onclick="PF('DialogWidgetVar').show()" />
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogWidgetVar').show()" 
+                                     disabled="#{!tituloMB.tituloSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" />
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{tituloMB.excluirTitulo}" 
+                                     disabled="#{!tituloMB.tituloSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=titulosDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o título ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                    <p:commandButton title="Copiar"  oncomplete="PF('DialogWidgetVar').show()" 
+                                     disabled="#{!tituloMB.tituloSeleciona}" 
+                                     action="#{tituloMB.copiarTitulo}"
+                                     process="@this"
+                                     update="@([id$=Dialog])" />                    
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <h:outputLabel for="ajaxSpinnerAno" value="Ano:" />
+                    <p:spinner value="#{tituloMB.filtroAno}" id="ajaxSpinnerAno" size="1" min="2007" max="2099" maxlength="4" style="margin-right: 10px">
+                        <p:ajax update="titulosDataTable" process="@this" listener="#{tituloMB.todosTitulos}" />
+                    </p:spinner>
+
+                    <h:outputLabel for="ajaxSpinnerMes" value="Mês:" />
+                    <p:spinner value="#{tituloMB.filtroMes}" id="ajaxSpinnerMes" size="1" min="0" max="12" maxlength="2" style="margin-right: 10px">
+                        <p:ajax update="titulosDataTable" process="@this" listener="#{tituloMB.todosTitulos}"  />
+                    </p:spinner>
+
+                    <h:outputLabel for="filtroContabiliza" value="Contabiliza:" />
+                    <p:selectOneMenu id="filtroContabiliza" filter="true"
+                                     value="#{tituloMB.filtroCdContabiliza}"
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 30px; margin-right: 10px" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.filtroLovCdContabiliza}"
+                                       var="contabibliza"
+                                       itemLabel="#{contabibliza.descr}"
+                                       itemValue="#{contabibliza.cd}" />
+                        <p:ajax update="titulosDataTable" process="@form" listener="#{tituloMB.todosTitulos}" />
+                    </p:selectOneMenu>                    
+
+                    <h:outputLabel for="filtroPago" value="Pago:" />
+                    <p:selectOneMenu id="filtroPago" filter="true"
+                                     value="#{tituloMB.filtroPago}"
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 30px;" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.filtroLovPago}"
+                                       var="pago"
+                                       itemLabel="#{pago.descr}"
+                                       itemValue="#{pago.cd}" />
+                        <p:ajax update="titulosDataTable" process="@form" listener="#{tituloMB.todosTitulos}" />
+                    </p:selectOneMenu>            
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:outputLabel value="Conta: " />
+                    <p:selectOneMenu id="filtroContaTitulo" filter="true" 
+                                     value="#{tituloMB.filtroConta}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" 
+                                     converter="contaConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.filtroListaContas}" 
+                                       var="filtroContas" 
+                                       itemLabel="#{filtroContas.descr}" 
+                                       itemValue="#{filtroContas}" />
+                        <p:ajax update="titulosDataTable" process="@form" listener="#{tituloMB.todosTitulos}" />
+                    </p:selectOneMenu>
+
+                    <br></br>
+                    <h:outputLabel for="showConta" value="#{tituloMB.showConta}" />
+                    <br></br>
+                    <h:outputLabel for="showContaPagar" value="Pagar: #{tituloMB.showContaPagar}" />
+                    <br></br>
+                    <h:outputLabel for="showContaReceber" value="Receber: #{tituloMB.showContaReceber}" />
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="titulosDataTable"
+                         styleClass="fonte12"
+                         rowStyleClass="#{titulo.grupoTitulo.cdTipo eq 'P' ? 'Color: pagar': 'Color: receber' }"
+                         value="#{tituloMB.listaTitulos}"
+                         selection="#{tituloMB.selectedTitulo}"
+                         var="titulo" 
+                         paginator="true" 
+                         rows="50" 
+                         paginatorPosition="bottom" 
+                         emptyMessage="Nenhuma informação a ser exibida" 
+                         selectionMode="single"
+                         scrollable="True"
+                         scrollWidth="100%"
+                         resizableColumns="True"
+                         rowKey="#{titulo.num}" >
+
+                <p:ajax event="rowSelect" listener="#{tituloMB.linhaSelecionada}" update="@([id$=toolbar])" />
+
+                <p:column headerText="Num" width="25" sortBy="#{titulo.num}" filterBy="#{titulo.num}" filterMatchMode="contains">
+                    <h:outputText value="#{titulo.num}" />
+                </p:column>
+
+                <p:column headerText="Conta" width="100"
+                          sortBy="#{titulo.conta.num}" 
+                          filterBy="#{titulo.conta.descr}" 
+                          filterMatchMode="contains">
+                    <h:outputText value="#{titulo.conta.descr}" />
+                </p:column>
+
+                <p:column headerText="Grupo" width="100"
+                          sortBy="#{titulo.grupoTitulo.num}" 
+                          filterBy="#{titulo.grupoTitulo.descr}" 
+                          filterMatchMode="contains">
+                    <h:outputText value="#{titulo.grupoTitulo.descr}" />
+                </p:column>
+
+                <p:column headerText="Tipo Pagamento" width="100"      
+                          sortBy="#{titulo.tipoPagamento.num}" 
+                          filterBy="#{titulo.tipoPagamento.descr}" 
+                          filterMatchMode="contains">
+                    <h:outputText value="#{titulo.tipoPagamento.descr}" />
+                </p:column>
+
+                <p:column headerText="Contrato/Pessoa" width="150"
+                          sortBy="#{titulo.contrato.descr}" 
+                          filterBy="#{titulo.contrato.descr}" 
+                          filterMatchMode="contains">
+                    <h:outputText value="#{titulo.contrato.descr} - #{titulo.pessoa.nome}" />
+                </p:column>
+
+                <p:column headerText="Descrição" width="200" sortBy="#{titulo.descr}" filterBy="#{titulo.descr}" filterMatchMode="contains">
+                    <h:outputText value="#{titulo.descr}" />
+                </p:column>
+
+                <p:column headerText="Valor" sortBy="#{titulo.vl}" filterBy="#{titulo.vl}" filterMatchMode="contains">
+                    <h:outputText value="#{titulo.vl}" >
+                        <f:convertNumber pattern="###,###,###,##0.00"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Cadastro" sortBy="#{titulo.dtCad}" filterBy="#{titulo.dtCad}" filterMatchMode="contains">
+                    <h:outputText value="#{titulo.dtCad}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Vencimento"  sortBy="#{titulo.dtVcto}" filterBy="#{titulo.dtVcto}" filterMatchMode="contains">
+                    <h:outputText value="#{titulo.dtVcto}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Pagamento">
+                    <h:outputText value="#{titulo.dtPgto}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Parc.">
+                    <h:outputText value="#{titulo.parcela}/#{titulo.parcelaTotal}" />
+                </p:column>
+
+                <p:column headerText="Ações" width="150">
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogWidgetVar').show()" 
+                                     disabled="#{not empty titulo.dtPgto}" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" >
+                    </p:commandButton>
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{tituloMB.excluirTitulo}" 
+                                     disabled="#{not empty titulo.dtPgto}" 
+                                     process="@this"
+                                     update="@([id$=titulosDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o título ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                    <p:commandButton title="Baixar"  
+                                     icon="fa fa-money"
+                                     disabled="#{not empty titulo.dtPgto}"
+                                     actionListener="#{tituloMB.baixarTitulo}"
+                                     process="@this"
+                                     update="@([id$=titulosDataTable])" >
+
+                        <p:confirm header="Confirma Baixa" message="Deseja realmente Baixar este Título ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                    <p:commandButton title="Estornar"  
+                                     icon="fa fa-undo"
+                                     disabled="#{empty titulo.dtPgto}"
+                                     actionListener="#{tituloMB.estornarTitulo}"
+                                     process="@this"
+                                     update="@([id$=titulosDataTable])" >
+
+                        <p:confirm header="Confirma Baixa" message="Deseja realmente Estornar este Título ?" icon="fa fa-exclamation-triangle" />
+
+                    </p:commandButton>
+
+
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Novo Título" id="Dialog" widgetVar="DialogWidgetVar"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="Dialog"/>
+                <h:panelGrid columns="2" id="paneltitulo">
+
+                    <p:outputLabel value="Id: " />
+                    <p:outputLabel value="#{tituloMB.num}" id="id" />
+
+                    <p:outputLabel value="Conta: " />
+                    <p:selectOneMenu id="contasTitulo" filter="true" 
+                                     value="#{tituloMB.conta}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" 
+                                     converter="contaConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.listaContas}" 
+                                       var="contas" 
+                                       itemLabel="#{contas.descr}" 
+                                       itemValue="#{contas}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Descrição: " for="descr" />
+                    <p:autoComplete id="descr" 
+                                    minQueryLength="3" 
+                                    value="#{tituloMB.descr}" 
+                                    completeMethod="#{tituloMB.completeText}" 
+                                    effect="fade">
+                        <p:ajax event="change" 
+                                listener="#{tituloMB.descrOnChange}"
+                                update="contasTitulo GruposTitulos tiposTitulo"
+                                />
+                    </p:autoComplete>
+
+
+                    <p:outputLabel value="Grupo: " />
+                    <p:selectOneMenu id="GruposTitulos" filter="true" 
+                                     value="#{tituloMB.grupoTitulo}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" 
+                                     converter="grupoTituloConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.listaGruposTitulos}" 
+                                       var="GruposTitulos" 
+                                       itemLabel="#{GruposTitulos.descr}" 
+                                       itemValue="#{GruposTitulos}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Tipo Pagamento: " />
+                    <p:selectOneMenu id="tiposTitulo" filter="true" 
+                                     value="#{tituloMB.tipoPagamento}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" 
+                                     converter="tipoPagamentoConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.listaTiposTitulos}" 
+                                       var="tiposTitulos" 
+                                       itemLabel="#{tiposTitulos.descr}" 
+                                       itemValue="#{tiposTitulos}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Contrato: " />
+                    <p:selectOneMenu id="contrato" filter="true"
+                                     value="#{tituloMB.contrato}"
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" 
+                                     converter="contratoConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.lovContrato}"
+                                       var="contratos"
+                                       itemLabel="#{contratos.descr}"
+                                       itemValue="#{contratos}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Pessoa: " />
+                    <p:selectOneMenu id="pessoa" filter="true"
+                                     value="#{tituloMB.pessoa}"
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;"
+                                     converter="pessoaConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{tituloMB.lovPessoa}"
+                                       var="pessoas"
+                                       itemLabel="#{pessoas.nome}"
+                                       itemValue="#{pessoas}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Valor" for="vl" />
+                    <p:inputNumber id="vl" value="#{tituloMB.vl}" decimalPlaces="2" size="80" symbol="R$" />
+
+                    <p:outputLabel value="Parcela" for="vl" />
+                    <p:inputNumber id="parcela" value="#{tituloMB.parcela}" size="80" />
+
+                    <p:outputLabel value="Parcela Total" for="vl" />
+                    <p:inputNumber id="parcelaTotal" value="#{tituloMB.parcelaTotal}" size="80" />
+
+                    <p:outputLabel value="Data Cadastro: " for="dtCad" />
+                    <p:calendar id="dtCad" pattern="dd/MM/yyyy" size="30" value="#{tituloMB.dtCad}" />
+
+                    <p:outputLabel value="Data Vencimento" />
+                    <p:calendar id="DtVcto" pattern="dd/MM/yyyy" size="30" value="#{tituloMB.dtVcto}"/>
+
+                    <p:outputLabel value="Data Pagamento" />
+                    <p:calendar id="DtPgto" pattern="dd/MM/yyyy" size="30" value="#{tituloMB.dtPgto}"/>
+
+                    <p:outputLabel value="Observação: " for="obs" />
+                    <p:inputText id="obs" size="80" maxlength="2000" value="#{tituloMB.obs}"   />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{tituloMB.verificaGeraParcelas}" update="DialogGerarParcelas" />
+                </h:panelGrid>
+            </p:dialog>
+
+            <p:dialog header="Novo Título" id="DialogGerarParcelas" widgetVar="DialogGerarParcelas"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="DialogGerarParcelas"/>
+                <h:panelGrid columns="1" id="paneltituloParc">
+
+                    <h:outputText value="#{tituloMB.textoOutPut()}"/> 
+                </h:panelGrid>
+                <h:panelGrid columns="2" id="paneltituloParc2">
+                    <p:commandButton value="Sim" title="Salvar" icon="fa fa-save" action="#{tituloMB.inserirTituloParcelado()}" update="titulosDataTable" />
+                    <p:commandButton value="#{tituloMB.textoBtn()}" title="Salvar" icon="fa fa-save" action="#{tituloMB.inserirTitulo}" update="titulosDataTable" />
+                </h:panelGrid>
+                </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

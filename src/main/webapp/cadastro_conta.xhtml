@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+
+        <h:form id="Menu">
+
+            <br></br>
+            <u><h1>Cadastro de Conta</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{contaMB.actionNova}"
+                                     update="panelConta"
+                                     onclick="PF('DialogWidgetVar').show()"/>
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogWidgetVar').show()"
+                                     disabled="#{!contaMB.selecionado}" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" />
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" />
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="contasDataTable" 
+                         value="#{contaMB.listaContas}"
+                         var="conta" 
+                         emptyMessage="Nenhuma informação a ser exibida"
+                         paginator="true" rows="30" paginatorPosition="bottom"
+                         selectionMode="single"
+                         selection="#{contaMB.selectedConta}"
+                         rowKey="#{conta.num}"
+                         >
+
+                <p:ajax event="rowSelect" listener="#{contaMB.linhaSelecionada}" update="@([id$=toolbar])" />
+
+                <p:column headerText="Num" width="50" >
+                    <h:outputText value="#{conta.num}" />
+                </p:column>                
+
+                <p:column headerText="Descrição" sortBy="#{conta.descr}" filterBy="#{conta.descr}" filterMatchMode="contains">
+                    <h:outputText value="#{conta.descr}" />
+                </p:column>
+
+                <p:column headerText="Tipo" >
+                    <h:outputText value="#{contaMB.getCdTipoDescr(conta.contaTipo)}" />
+                </p:column>                
+
+                <p:column headerText="Valor Saldo">
+                    <h:outputText value="#{conta.vlSaldo}" >
+                        <f:convertNumber pattern="###,###,###,##0.00"/>
+                    </h:outputText>                    
+                </p:column>
+
+                <p:column headerText="Situação">
+                    <h:outputText value="#{contaMB.getCdSitDescr(conta.cdSit)}" />
+                </p:column>
+
+                <p:column headerText="Data de Cadastro">
+                    <h:outputText value="#{conta.dt_cad}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Data de Alteração">
+                    <h:outputText value="#{conta.dt_alt}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Observação">
+                    <h:outputText value="#{conta.obs}" />
+                </p:column>                
+
+            </p:dataTable>
+
+            <p:dialog header="Nova Conta" id="Dialog" widgetVar="DialogWidgetVar"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <h:panelGrid columns="2" id="panelConta">
+                    
+                    <p:outputLabel value="Id: " />
+                    <p:outputLabel value="#{contaMB.num}" id="id" />                    
+
+                    <p:outputLabel value="Descrição: " for="descr" />
+                    <p:inputText id="descr" size="80" maxlength="2000" value="#{contaMB.descr}"  />
+
+                    <p:outputLabel value="Tipo " />
+                    <p:selectOneMenu id="tipo" filter="true" 
+                                     value="#{contaMB.contaTipo}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{contaMB.lovContaTipo}" 
+                                       var="tipos" 
+                                       itemLabel="#{tipos.descr}" 
+                                       itemValue="#{tipos.cd}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Valor Saldo: " for="vlSaldo" />
+                    <p:inputText id="vlSaldo" size="80" maxlength="20" value="#{contaMB.vlSaldo}" />
+
+                    <p:outputLabel value="Situação: " />
+                    <p:selectOneMenu id="situacao" filter="true" 
+                                     value="#{contaMB.cdSit}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{contaMB.lovCdSit}" 
+                                       var="sitacoes" 
+                                       itemLabel="#{sitacoes.descr}" 
+                                       itemValue="#{sitacoes.cd}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Observação: " for="obs" />
+                    <p:inputText id="obs" size="80" maxlength="2000" value="#{contaMB.obs}"  />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{contaMB.inserirConta}" update="contasDataTable" />
+                </h:panelGrid>
+            </p:dialog>
+
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

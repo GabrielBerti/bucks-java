@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+        <h:form id="frm">
+
+            <br></br>
+            <u><h1>Cadastro de Grupo de Título</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{grupoTituloMB.actionNova}"
+                                     update="panelTituloGrupo"
+                                     onclick="PF('grupoTituloDialogWidgetVar').show()" />
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:commandButton title="Editar" icon="fa fa-edit" oncomplete="PF('grupoTituloDialogWidgetVar').show()" 
+                                     update="@([id$=grupoTituloDialog])" disabled="#{!grupoTituloMB.grupoTituloSeleciona}" process="@this"/>
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{grupoTituloMB.excluirGrupoTitulo()}" 
+                                     disabled="#{!grupoTituloMB.grupoTituloSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=grupoTituloDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o Grupo de Título?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="grupoTituloDataTable" 
+                         value="#{grupoTituloMB.listaGrupoTitulos}"
+                         var="grupoTitulo" emptyMessage="Nenhuma informação a ser exibida"
+                         paginator="true" rows="10" paginatorPosition="bottom"
+                         selectionMode="single" 
+                         selection="#{grupoTituloMB.selectedGrupoTitulo}" 
+                         rowKey="#{grupoTitulo.num}" >
+
+                <p:ajax event="rowSelect" listener="#{grupoTituloMB.linhaSelecionada}" update="@([id$=toolbar])" />
+
+                <p:column headerText="Num" sortBy="#{grupoTitulo.num}" >
+                    <h:outputText value="#{grupoTitulo.num}" />
+                </p:column>
+
+                <p:column headerText="Descrição" sortBy="#{grupoTitulo.descr}" 
+                          filterBy="#{grupoTitulo.descr}" filterMatchMode="contains">
+                    <h:outputText value="#{grupoTitulo.descr}" />
+                </p:column>
+
+                <p:column headerText="Tipo" >
+                    <h:outputText value="#{grupoTituloMB.cdTipoDescr(grupoTitulo.cdTipo)}" />
+                </p:column>
+
+                <p:column headerText="Contabiliza" >
+                    <h:outputText value="#{grupoTituloMB.cdContabilizaDescr(grupoTitulo.cdContabiliza)}" />
+                </p:column>
+
+                <p:column headerText="Observação" >
+                    <h:outputText value="#{grupoTitulo.descr}" />
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Novo Grupo de Título" id="grupoTituloDialog" widgetVar="grupoTituloDialogWidgetVar"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="grupoTituloDialog"/>
+                <h:panelGrid columns="2" id="panelTituloGrupo">
+
+                    <p:outputLabel value="Id: " />
+                    <p:outputLabel value="#{grupoTituloMB.num}" id="id" />
+                    
+                    <p:outputLabel value="Descrição: " for="descr" />
+                    <p:inputText id="descr" size="80" maxlength="2000" 
+                                 value="#{grupoTituloMB.descr}"  />
+
+                    <p:outputLabel value="Tipo: " />
+                    <p:selectOneMenu id="cdTipo" filter="true"
+                                     value="#{grupoTituloMB.cdTipo}"
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{grupoTituloMB.lovTipo}"
+                                       var="tipos"
+                                       itemLabel="#{tipos.descr}"
+                                       itemValue="#{tipos.cd}" />
+                    </p:selectOneMenu>   
+                    
+                    <p:outputLabel value="Contabiliza: " />
+                    <p:selectOneMenu id="cdContabiliza" filter="true"
+                                     value="#{grupoTituloMB.cdContabiliza}"
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{grupoTituloMB.lovSimNao}"
+                                       var="simNao"
+                                       itemLabel="#{simNao.descr}"
+                                       itemValue="#{simNao.cd}" />
+                    </p:selectOneMenu>   
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" 
+                                     action="#{grupoTituloMB.inserirGrupoTitulo}" 
+                                     update="grupoTituloDataTable" />
+                </h:panelGrid>
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

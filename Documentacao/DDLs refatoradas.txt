@@ -1,0 +1,465 @@
+
+-- padrao a ser seguido
+pk = pk_ + tabela
+fk = fk_ + tabela + tabela_pai
+
+--novas tabelas
+CREATE TABLE public.orcamento
+(
+  id integer NOT NULL,
+  fk_titulo_grupo_id integer NOT NULL,
+  ano integer NOT NULL,
+  mes integer NOT NULL,
+  vl numeric(19,2) NOT NULL,
+  dt_cad timestamp without time zone NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_alt timestamp without time zone,
+  us_alt character varying(30),
+  obs character varying(2000),  
+
+  CONSTRAINT pk_orcamento PRIMARY KEY (id),
+  CONSTRAINT fk_orcamento_titulo_grupo FOREIGN KEY (fk_titulo_grupo_id)
+      REFERENCES public.titulo_grupo (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+  
+
+
+
+CREATE TABLE public.login
+(
+  id integer NOT NULL,
+  email character varying(100) NOT NULL,
+  senha character varying(30) NOT NULL,
+  CONSTRAINT pk_login PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+--
+insert into login values (0,'TESTE@GMAIL.COM', '123');
+insert into login values (-1,'teste@gmail.com', '123');
+
+
+CREATE TABLE public.conta
+(
+  id integer NOT NULL,
+  fk_conta_tipo_id integer not null, --ainda nao criamos tabela
+  descr character varying(100) NOT NULL,
+  vl_saldo numeric(19,2) NOT NULL,
+  cd_sit integer NOT NULL,
+  dt_cad timestamp without time zone NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_alt timestamp without time zone,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_conta PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE public.tipo_pagamento
+(
+  id integer NOT NULL,
+  descr character varying(200) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_tipo_pagamento PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE public.titulo_grupo
+(
+  id integer NOT NULL,
+  descr character varying(200) NOT NULL,
+  cd_tipo character varying(1) NOT NULL, 
+  cd_contabiliza character varying(1) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_titulo_grupo PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE pessoa
+(
+  id integer NOT NULL,
+  nome character varying(100) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(200),
+  CONSTRAINT pk_pessoa PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+
+CREATE TABLE contrato
+(
+  id integer NOT NULL,
+  descr character varying(100) NOT NULL,
+  fk_contrato_tipo_id integer not null, --ainda nao criamos tabela
+  dt_base date NOT NULL,
+  vl_base numeric(18,2) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(200),
+  CONSTRAINT pk_contrato PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE contrato_pessoa
+(
+  fk_contrato_id integer NOT NULL,
+  fk_pessoa_id integer NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  CONSTRAINT pk_contrato_pessoa PRIMARY KEY (fk_contrato_id, fk_pessoa_id),
+  CONSTRAINT fk_contrato_pessoa_contrato FOREIGN KEY (fk_contrato_id)
+      REFERENCES public.contrato (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION  ,
+  CONSTRAINT fk_contrato_pessoa_pessoa FOREIGN KEY (fk_pessoa_id)
+      REFERENCES public.pessoa (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION  
+  
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+CREATE TABLE cg_ref_codes
+(
+  id integer NOT NULL,	
+  rv_low_value character varying(300) NOT NULL,
+  rv_high_value character varying(300),
+  rv_abreviation character varying(300),
+  rv_domain character varying(300) NOT NULL,
+  rv_meaning character varying(300),
+  CONSTRAINT pk_cg_ref_codes PRIMARY KEY (id)
+);
+
+
+
+CREATE TABLE public.titulo
+(
+  id integer NOT NULL,
+  fk_conta_id integer NOT NULL,
+  fk_titulo_grupo_id integer NOT NULL,
+  fk_tipo_pagamento_id integer NOT NULL,
+  fk_contrpes_contrato_id integer,
+  fk_contrpes_pessoa_id integer,  
+  descr character varying(200) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  dt_vcto date NOT NULL,
+  dt_pgto date,
+  vl numeric(18,2) NOT NULL,
+  parcela integer NOT NULL,
+  parcela_total integer NOT NULL,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_titulo PRIMARY KEY (id),
+  CONSTRAINT fk_titulo_conta FOREIGN KEY (fk_conta_id)
+      REFERENCES public.conta (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION  ,
+  CONSTRAINT fk_titulo_titulo_grupo FOREIGN KEY (fk_titulo_grupo_id)
+      REFERENCES public.titulo_grupo (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION    ,
+  CONSTRAINT fk_titulo_tipo_pagamento FOREIGN KEY (fk_tipo_pagamento_id)
+      REFERENCES public.tipo_pagamento (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION    ,	  
+  CONSTRAINT fk_titulo_contrato_pessoa FOREIGN KEY (fk_contrpes_contrato_id, fk_contrpes_pessoa_id)
+      REFERENCES public.contrato_pessoa (fk_contrato_id, fk_pessoa_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+
+CREATE TABLE public.titulo_extrato
+(
+  id integer NOT NULL,
+  fk_titulo_id integer,
+  vl numeric(18,2) NOT NULL,
+  vl_saldo_ant numeric(18,2) NOT NULL,
+  vl_saldo_atu numeric(18,2) NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  obs character varying(200),
+  CONSTRAINT pk_titulo_extrato PRIMARY KEY (id),
+  CONSTRAINT fk_titulo_extrato_titulo FOREIGN KEY (fk_titulo_id)
+      REFERENCES public.titulo (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION    
+  
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+
+
+
+
+
+-- usar essa por enqto até que a CG_REF_CODES esteja ok
+-- a ideia é por eqnto ir fazenda insert na mao
+CREATE TABLE public.lov
+(
+  rv_domain character varying(200) NOT NULL,
+  rv_meaning character varying(200) NOT NULL,
+  vl_low_value numeric(18,2),
+  vl_high_value numeric(18,2),
+  vl_alfa character varying(30)
+)
+WITH (
+  OIDS=FALSE
+);
+
+
+
+insert into lov (rv_domain, rv_meaning, vl_alfa) values ('SIM NAO', 'Sim', 'S');
+insert into lov (rv_domain, rv_meaning, vl_alfa) values ('SIM NAO', 'Não', 'N');
+
+
+
+-- nao criei essa tabela ainda, rever pk que deve ser composta
+-- rever PK
+CREATE TABLE titulo_agrupamento
+(
+  id integer NOT NULL,
+  fk_titulo_id integer not null,
+  cd_tipo integer NOT NULL, 
+  us_cad character varying(30) NOT NULL,
+  dt_cad date NOT NULL,
+  us_alt character varying(30),
+  dt_alt date,
+  CONSTRAINT pk_titulo_agrupamento PRIMARY KEY (fk_titulo_id) ,
+  CONSTRAINT fk_titulo_agrupamento_titulo FOREIGN KEY (fk_titulo_id)
+      REFERENCES public.titulo (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION  
+);
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+CREATE TABLE public.projeto
+(
+  num integer NOT NULL,
+  descr character varying(2000) NOT NULL,
+  dt_cad date NOT NULL,
+  us_cad character varying(30) NOT NULL,
+  vl_orcado numeric(18,2) NOT NULL,
+  dt_prev_ini date NOT NULL,
+  dt_prev_fim date,
+  dt_alt date,
+  us_alt character varying(30),
+  obs character varying(2000),
+  CONSTRAINT pk_projeto PRIMARY KEY (num)
+)
+WITH (
+  OIDS=FALSE
+);
+*/
+
+
+ 
+
+  
+
+  
+  
+  
+  
+  
+  
+
+
+
+  
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+-*-*-* EXEMPLO SEQUENCE: -*-*-*-*
+
+  CREATE SEQUENCE public.seq_titulo_grupo --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 99 -- mudar
+  START 1
+  CACHE 1;
+  
+  
+-- drop total
+
+drop table conta;
+drop table cg_ref_codes ;
+drop table contrato;
+drop table titulo_extrato;
+drop table titulo_agrupamento ;
+drop table titulo;
+drop table contrato_pessoa ;
+drop table pessoa;
+drop table grupo_titulo ;
+drop table login;
+drop table projeto;
+drop table tipo_pagamento ;
+drop table lov;
+--
+drop sequence cg_ref_codes_seq;
+drop sequence conta_seq;
+drop sequence contrato_seq;
+drop sequence grupo_titulo_seq;
+--drop sequence login_id_seq;
+drop sequence pessoa_seq;
+drop sequence tipo_pagamento_seq;
+drop sequence titulo_extrato_seq;
+drop sequence titulo_seq;
+
+-- deletar todas as tabelas
+delete from cg_ref_codes ;
+delete from titulo_extrato;
+--delete from titulo_agrupamento ;
+delete from contrato_pessoa ;
+delete from contrato;
+delete from pessoa;
+delete from titulo;
+
+delete from conta;
+delete from titulo_grupo ;
+delete from tipo_pagamento ;
+--delete from login;
+--delete from lov;
+--delete from projeto;
+
+
+-- carga inicial --
+insert into lov (rv_domain, rv_meaning, vl_alfa) values ('SIM NAO', 'Sim', 'S');
+insert into lov (rv_domain, rv_meaning, vl_alfa) values ('SIM NAO', 'Não', 'N');
+
+
+
+--
+
+CREATE SEQUENCE public.seq_orcamento
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999
+  START 1
+  CACHE 1;
+
+CREATE SEQUENCE public.seq_conta --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999 -- mudar
+  START 1
+  CACHE 1;
+
+
+ CREATE SEQUENCE public.seq_tipo_pagamento --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999 -- mudar
+  START 1
+  CACHE 1; 
+
+
+ CREATE SEQUENCE public.seq_titulo_grupo --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999 -- mudar
+  START 1
+  CACHE 1; 
+
+
+  CREATE SEQUENCE public.seq_pessoa --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;  
+
+
+  CREATE SEQUENCE public.seq_contrato --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;   
+
+
+ CREATE SEQUENCE public.seq_cg_ref_codes --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;  
+
+
+
+CREATE SEQUENCE public.seq_titulo --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;
+ 
+
+
+
+CREATE SEQUENCE public.seq_titulo_extrato --mudar
+  INCREMENT 1
+  MINVALUE 0
+  MAXVALUE 999999 -- mudar
+  START 1
+  CACHE 1;
+  

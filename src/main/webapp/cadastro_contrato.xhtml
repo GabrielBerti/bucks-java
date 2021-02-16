@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+        <h:form id="frm">
+
+            <br></br>
+            <u><h1>Cadastro de Contrato</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{contratoMB.actionNova}"
+                                     update="panelContrato"
+                                     onclick="PF('DialogWidgetVar').show()" />
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogWidgetVar').show()" 
+                                     disabled="#{!contratoMB.contratoSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" />
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{contratoMB.excluirContrato()}" 
+                                     disabled="#{!contratoMB.contratoSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=DataTableContrato])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o Contrato ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="DataTableContrato"
+                         value="#{contratoMB.listaContratos}"
+                         selection="#{contratoMB.contrato}"
+                         var="contrato" 
+                         paginator="true" rows="10" paginatorPosition="bottom" emptyMessage="Nenhuma informação a ser exibida" selectionMode="single"
+                         rowKey="#{contrato.num}" >
+
+                <p:ajax event="rowSelect" listener="#{contratoMB.linhaSelContrato}" update="@([id$=toolbar],[id$=DataTableContratoPessoa])" /> 
+
+                <p:column headerText="Num" sortBy="#{contrato.num}" filterBy="#{contrato.num}" filterMatchMode="contains">
+                    <h:outputText value="#{contrato.num}" />
+                </p:column>
+
+                <p:column headerText="Tipo" >
+                    <h:outputText value="#{contrato.contratoTipo}" />
+                </p:column>
+
+                <p:column headerText="Descrição" width="200" sortBy="#{contrato.descr}" filterBy="#{contrato.descr}" filterMatchMode="contains">
+                    <h:outputText value="#{contrato.descr}" />
+                </p:column>
+
+                <p:column headerText="Valor">
+                    <h:outputText value="#{contrato.vlBase}" >
+                        <f:convertNumber pattern="###,###,###,##0.00"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Cadastro">
+                    <h:outputText value="#{contrato.dtCad}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Alteração" width="100">
+                    <h:outputText value="#{contrato.dtAlt}" >
+
+                        <f:convertDateTime pattern="dd/MM/yy hh:mm" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Observação">
+                    <h:outputText value="#{contrato.obs}" />
+                </p:column>
+
+                <p:column headerText="Ações" width="150">
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogWidgetVar').show()" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" >
+                    </p:commandButton>
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{contratoMB.excluirContratoPessoa}" 
+                                     process="@this"
+                                     update="@([id$=DataTableContrato])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o Título ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Novo Contrato" id="Dialog" widgetVar="DialogWidgetVar"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="Dialog"/>
+                <h:panelGrid columns="2" id="panelContrato">
+
+                    <p:outputLabel value="Id: " />
+                    <p:outputLabel value="#{contratoMB.num}" id="id" />
+                    
+                    <p:outputLabel value="Tipo " />
+                    <p:selectOneMenu id="tipo" filter="true" 
+                                     value="#{contratoMB.contratoTipo}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{contratoMB.contratoTipos}" 
+                                       var="tipos" 
+                                       itemLabel="#{tipos.descr}" 
+                                       itemValue="#{tipos}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Descrição: " for="descr" />
+                    <p:inputText id="descr" size="80" maxlength="2000" value="#{contratoMB.descr}"  />
+
+                    <p:outputLabel value="Data Base: " for="dtBase" />
+                    <p:calendar id="dtBase" pattern="dd/MM/yyyy" size="30" value="#{contratoMB.dtBase}" />
+
+                    <p:outputLabel value="Valor" for="vl" />
+                    <p:inputNumber id="vl" value="#{contratoMB.vlBase}" decimalPlaces="2" size="80" symbol="R$" />
+
+                    <p:outputLabel value="Observação: " for="obs" />
+                    <p:inputText id="obs" size="80" maxlength="2000" value="#{contratoMB.obs}"   />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{contratoMB.inserirContrato}" update="DataTableContrato" />
+                </h:panelGrid>
+            </p:dialog>
+
+            
+            
+            <br></br>
+            <u><h1>Pessoas do Contrato</h1></u>
+            <br></br>
+
+            <p:toolbar id="toolbarFilho">
+                <f:facet name="left">
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     onclick="PF('DialogWidgetVarPessoa').show()" />
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="DataTableContratoPessoa"
+                         value="#{contratoMB.listaContratoPessoas}"
+                         selection="#{contratoMB.contratoPessoa}"
+                         var="contratoPessoa" 
+                         paginator="true" rows="10" paginatorPosition="bottom" emptyMessage="Nenhuma informação a ser exibida" selectionMode="single"
+                         rowKey="#{contratoPessoa.contratoPessoaId.pessoa.num}" >
+
+                <p:ajax event="rowSelect" listener="#{contratoMB.linhaSelecionadaContratoPessoa}" update="@([id$=toolbarFilho])" />
+
+                <p:column headerText="Pessoa">
+                    <h:outputText value="#{contratoPessoa.contratoPessoaId.pessoa.nome}" />
+                </p:column>
+
+            </p:dataTable>            
+
+            <p:dialog header="Nova Pessoa" id="DialogFiho" widgetVar="DialogWidgetVarPessoa"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="Dialog"/>
+                <h:panelGrid columns="2">
+
+                    <p:outputLabel value="Pessoa " />
+                    <p:selectOneMenu id="pessoa" filter="true" 
+                                     value="#{contratoMB.pessoa}" 
+                                     filterMatchMode="startsWith" style="font-weight: bold; width: 250px;" 
+                                     converter="pessoaConverter" >
+                        <f:selectItem itemLabel=""/>
+                        <f:selectItems value="#{contratoMB.lovPessoas}" 
+                                       var="Pessoas" 
+                                       itemLabel="#{Pessoas.nome}" 
+                                       itemValue="#{Pessoas}" />
+                    </p:selectOneMenu>
+                    
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{contratoMB.inserirContratoPessoa}" update="DataTableContratoPessoa" />
+                </h:panelGrid>
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+
+        <h:form id="Menu">
+
+            <br></br>
+            <u><h1>Cadastro de Códigos do Sistema (CRC)</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{cgRefCodesMB.limpaNum}"
+                                     oncomplete="PF('DialogWidgetVar').show()"/>
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <p:commandButton title="Editar"  icon="fa fa-edit"  oncomplete="PF('DialogWidgetVar').show()"
+                                     disabled="#{!cgRefCodesMB.selecionado}" 
+                                     process="@this"
+                                     update="@([id$=Dialog])" />
+
+                    <p:commandButton title="Excluir" 
+                                     actionListener="#{cgRefCodesMB.excluirCgRefCodes}" 
+                                     disabled="#{!cgRefCodesMB.selecionado}" 
+                                     update="cgRefCodesDataTable"
+                                     icon="fa fa-trash" />
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="cgRefCodesDataTable" 
+                         value="#{cgRefCodesMB.listaCgRefCodes}"
+                         var="cgRefCodes" 
+                         emptyMessage="Nenhuma informação a ser exibida"
+                         paginator="true" rows="10" paginatorPosition="bottom"
+                         selectionMode="single"
+                         selection="#{cgRefCodesMB.selectedCgRefCodes}"
+                         rowKey="#{cgRefCodes.num}"
+                         >
+
+                <p:ajax event="rowSelect" listener="#{cgRefCodesMB.linhaSelecionada}" update="@([id$=toolbar])" />
+
+                <p:column headerText="Num" width="50" >
+                    <h:outputText value="#{cgRefCodes.num}" />
+                </p:column>                
+
+                <p:column headerText="RvLowValue" sortBy="#{cgRefCodes.rvLowValue}" filterBy="#{cgRefCodes.rvLowValue}" filterMatchMode="contains">
+                    <h:outputText value="#{cgRefCodes.rvLowValue}" />
+                </p:column>
+
+                <p:column headerText="RvHighValue" filterMatchMode="contains">
+                    <h:outputText value="#{cgRefCodes.rvHighValue}" />
+                </p:column>
+
+                <p:column headerText="RvAbreviation" filterMatchMode="contains">
+                    <h:outputText value="#{cgRefCodes.rvAbreviation}" />
+                </p:column>
+
+                <p:column headerText="RvDomain" filterBy="#{cgRefCodes.rvDomain}" filterMatchMode="contains">
+                    <h:outputText value="#{cgRefCodes.rvDomain}" />
+                </p:column>
+
+                <p:column headerText="RvMeaning" filterMatchMode="contains">
+                    <h:outputText value="#{cgRefCodes.rvMeaning}" />
+                </p:column>
+
+
+            </p:dataTable>
+
+            <p:dialog header="Novo CdRefCodes" id="Dialog" widgetVar="DialogWidgetVar"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <h:panelGrid columns="2">
+
+                    <p:outputLabel value="RvLowValue: " for="rvLowValue" />
+                    <p:inputText id="rvLowValue" size="80" maxlength="300" value="#{cgRefCodesMB.rvLowValue}"  />
+
+                    <p:outputLabel value="RvHighValue: " for="rvHighValue" />
+                    <p:inputText id="rvHighValue" size="80" maxlength="300" value="#{cgRefCodesMB.rvHighValue}"  />
+
+                    <p:outputLabel value="RvAbreviation: " for="rvAbreviation" />
+                    <p:inputText id="rvAbreviation" size="80" maxlength="300" value="#{cgRefCodesMB.rvAbreviation}"  />
+
+                    <p:outputLabel value="RvDomain: " for="rvDomain" />
+                    <p:inputText id="rvDomain" size="80" maxlength="300" value="#{cgRefCodesMB.rvDomain}"  />
+
+                    <p:outputLabel value="RvMeaning: " for="rvMeaning" />
+                    <p:inputText id="rvMeaning" size="80" maxlength="300" value="#{cgRefCodesMB.rvMeaning}"  />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{cgRefCodesMB.inserirCgRefCodes}" update="cgRefCodesDataTable" />
+                </h:panelGrid>
+            </p:dialog>
+
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+

@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/template/Layout.xhtml">
+    <h:head>
+        <title>Bucks</title>
+
+        <h:outputStylesheet library="bucks" name="estilo.css" />
+
+    </h:head>
+    <p:messages globalOnly="true" />
+
+    <ui:define name="conteudo">
+        <h:form id="frm">
+
+            <br></br>
+            <u><h1>Cadastro de Tipo de Pagamento</h1></u>
+            <br></br>
+
+            <p:messages autoUpdate="true" />
+
+            <p:toolbar id="toolbar">
+                <f:facet name="left">
+
+                    <p:commandButton value="Nova" icon="fa fa-plus" 
+                                     action="#{tipoPagamentoMB.actionNova}"
+                                     update="panelTituloGrupo"
+                                     onclick="PF('tpPagtoDialogWidgetVar').show()" />
+
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+
+                    <!--                    <p:commandButton title="Editar" icon="fa fa-edit" />-->
+                    <p:commandButton title="Editar" icon="fa fa-edit" oncomplete="PF('tpPagtoDialogWidgetVar').show()" 
+                                     update="@([id$=tpPagtoDialog])" disabled="#{!tipoPagamentoMB.tipoPagamentoSeleciona}" process="@this"/>
+
+                    <p:commandButton title="Excluir" icon="fa fa-trash" 
+                                     actionListener="#{tipoPagamentoMB.excluirTipoPagamento()}"
+                                     disabled="#{!tipoPagamentoMB.tipoPagamentoSeleciona}" 
+                                     process="@this"
+                                     update="@([id$=tpPagtoDataTable])" >
+
+                        <p:confirm header="Confirma exclusão" message="Deseja realmente excluir o tipo de pagamento ?" icon="fa fa-exclamation-triangle" />
+                    </p:commandButton>
+
+                </f:facet>
+            </p:toolbar>
+
+            <p:spacer height="20px" />
+
+            <p:dataTable id="tpPagtoDataTable" value="#{tipoPagamentoMB.listaTipoPagamentos}"
+                         var="tipoPagamento" emptyMessage="Nenhuma informação a ser exibida"
+                         paginator="true" rows="10" paginatorPosition="bottom"
+                         selectionMode="single" selection="#{tipoPagamentoMB.selectedTipoPagamento}" rowKey="#{tipoPagamento.num}" >
+
+                <p:ajax event="rowSelect" listener="#{tipoPagamentoMB.linhaSelecionada}" update="@([id$=toolbar])" />
+
+                <p:column headerText="Descrição" sortBy="#{tipoPagamento.descr}" filterBy="#{tipoPagamento.descr}" filterMatchMode="contains">
+                    <h:outputText value="#{tipoPagamento.descr}" />
+                </p:column>
+
+            </p:dataTable>
+
+            <p:dialog header="Novo Tipo Pagamento" id="tpPagtoDialog" widgetVar="tpPagtoDialogWidgetVar"
+                      modal="true" resizable="false" closeOnEscape="true">
+                <p:ajax event="close" update="tpPagtoDialog"/>
+                <h:panelGrid columns="2" id="panelTituloGrupo">
+
+                    <p:outputLabel value="Id: " />
+                    <p:outputLabel value="#{tipoPagamentoMB.num}" id="id" />
+                    
+                    <p:outputLabel value="Descrição: " for="descr" />
+                    <p:inputText id="descr" size="80" maxlength="2000" value="#{tipoPagamentoMB.descr}" />
+
+                    <p:commandButton value="Salvar" title="Salvar" icon="fa fa-save" action="#{tipoPagamentoMB.inserirTipoPagamento}" update="tpPagtoDataTable" />
+                </h:panelGrid>
+            </p:dialog>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>
+
